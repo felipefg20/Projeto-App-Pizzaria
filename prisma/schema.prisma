@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id        String     @id @default(uuid())
+  name      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  products  Products[]
+
+  @@map("categories")
+}
+
+model Products {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       Int
+  banner      String
+  category_id String
+  disable     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  items       Item[]
+  category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@map("products")
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  table     Int
+  status    Boolean  @default(false)
+  draft     Boolean  @default(true)
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  items     Item[]
+
+  @@map("orders")
+}
+
+model Item {
+  id          String   @id @default(uuid())
+  amount      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  order_id    String
+  products_id String
+  order       Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product     Products @relation(fields: [products_id], references: [id], onDelete: Cascade)
+
+  @@map("itens")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STAFF)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
